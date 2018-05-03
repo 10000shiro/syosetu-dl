@@ -7,13 +7,13 @@ Created on Mon Dec 19 10:04:47 2016
 
 class Chapter():
     
-    def __init__(self, novel_name, chapter_name, chapter_number, chapter_content, url, update_date):
+    def __init__(self, novel_name, chapter_name, chapter_number, url, update_date):
         self.novel_name = novel_name
         self.chapter_name = chapter_name
         self.chapter_number = chapter_number
-        self.chapter_content = chapter_content
         self.url = url
         self.update_date = update_date
+        self.chapter_content = ""
         
         
         
