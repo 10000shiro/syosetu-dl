@@ -89,7 +89,8 @@ class SyosetuReader(object):
         
         print_info(self.verbose, self.disable_logging, log_string)
         
-        webpage = requests.get(url)
+        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+        webpage = requests.get(url, headers=headers)
         webpage.encoding = "UTF-8"
         if self.python3:
             content = webpage.text#.decode("UTF-8")
@@ -232,7 +233,7 @@ class SyosetuReader(object):
         
         
         log_string = ("--------------------------------------\n")
-        first_chapter = max(1,args.range_start)
+        first_chapter = max(1,int(args.range_start))
         if args.range_end == -1:
             last_chapter = novel.maximum_chapter_number
         else: 
@@ -273,12 +274,16 @@ class SyosetuReader(object):
         log_string = "Grabbing chapter {}\n".format(chapter.chapter_number)
         print_info(self.verbose, self.disable_logging, log_string)
             
-        webpage = requests.get(chapter.url)
+        #webpage = requests.get(chapter.url)
+        
+        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+        webpage = requests.get(chapter.url, headers=headers)
         webpage.encoding = "UTF-8"
         if self.python3:
             content = webpage.text#.decode("UTF-8")
         else:
             content = webpage.content
+            
         
         if "Too many access" in content:
             
@@ -310,7 +315,6 @@ class SyosetuReader(object):
         
         for x in range(len(lines)):
             #print(x, ": ", lines[x])
-            
             if "novel_honbun" in lines[x] and "novel_view" in lines[x]:
                 start_index = x
             
@@ -327,7 +331,8 @@ class SyosetuReader(object):
             line = remove_tags(lines[x+start_index])
             
             chapter_content.append(line)
-            
+        
+        
         log_string = "Grabbed chapter {}\n".format(chapter.chapter_number)
         print_info(self.verbose, self.disable_logging, log_string)
             
@@ -387,7 +392,7 @@ class SyosetuReader(object):
     def save_chapter_tts(self, chapter):
         text = "\n".join(chapter.chapter_content)
         #text = text.encode("UTF-8")
-        self.gTTS._tokenize = _tokenize
+        #   self.gTTS._tokenize = _tokenize
         #tts = gTTS(text=text, lang="ja", verbose=verbose)
         tts = self.gTTS(text=text, lang="ja")
             
@@ -406,8 +411,8 @@ class SyosetuReader(object):
                 log_string = "Finished saving Text-to-Speech for Chapter {}".format(chapter.chapter_number)
                 print_info(self.verbose, self.disable_logging, log_string)
             
-            except Exception:
-                return False
+            except Exception as e:
+                raise e
                     
         
     def _save_chapter(self, chapter):
@@ -416,7 +421,7 @@ class SyosetuReader(object):
             
         if self.python3:
            filepath = os.path.join(self.save_directory, "Chapter_{:03d}.txt".format(chapter.chapter_number))
-               
+           outfile = open(filepath ,"w", encoding="utf-8")    
         if not self.python3:
             outfile = open(filepath ,"w")
         
@@ -568,7 +573,7 @@ def _tokenize(self, text, max_size):
         min_parts = []
         for p in parts:
             min_parts += self._minimize(p, " ", max_size)
-        return min_parts
+        return min_parts    
 
 
 if __name__=="__main__":
@@ -617,7 +622,7 @@ if __name__=="__main__":
         log_string +=("Printing verbose output to command line.\n")
     else:
         log_string +=("Verbose output to command line suppressed.\n")
-    first_chapter = max(1,args.range_start)
+    first_chapter = max(1,int(args.range_start))
     if args.range_end == -1:
         last_chapter = "last" 
     else: 
